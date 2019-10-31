@@ -12,12 +12,12 @@ export class UsersController {
         return this.service.getUser(params.id);
     }
 
-    @Post()
+    @Put()
     create(@Body() user: Partial<User>) {
         return this.service.createUser(user);
     }
 
-    @Put()
+    @Post()
     update(@Body() user: User) {
         return this.service.updateUser(user);
     }

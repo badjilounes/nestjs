@@ -7,6 +7,12 @@ export class User {
     id: number;
 
     @Column({ type: String })
+    email = '';
+
+    @Column({ type: String })
+    password = '';
+
+    @Column({ type: String })
     firstName = '';
 
     @Column({ type: String })
@@ -17,9 +23,6 @@ export class User {
 
     @Column({ type: String })
     role = 'patient';
-
-    @Column({ type: Number })
-    age = 0;
 
     @Column({ type: String })
     gender = 'male';
