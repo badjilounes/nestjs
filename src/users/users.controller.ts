@@ -62,8 +62,8 @@ export class UsersController {
     @ApiResponse({ status: 201, description: 'User found', type: UserDto})
     @ApiResponse({ status: 401, description: 'User not authentificated'})
     @ApiResponse({ status: 404, description: 'User not found'})
-    async get(@Param() params: {id: number}): Promise<UserDto> {
-        const user: User = await this.service.getUserById(params.id);
+    async get(@Param('id') id: number): Promise<UserDto> {
+        const user: User = await this.service.getUserById(id);
         return this.userDtoConverter.convertOutbound(user);
     }
 
@@ -84,9 +84,9 @@ export class UsersController {
     @ApiResponse({ status: 201, description: 'User updated', type: UserDto})
     @ApiResponse({ status: 401, description: 'User not authentificated'})
     @ApiResponse({ status: 404, description: 'User not found'})
-    async update(@Param() params: {id: number}, @Body() user: UpdateUserDto): Promise<UserDto> {
+    async update(@Param('id') id: number, @Body() user: UpdateUserDto): Promise<UserDto> {
         const userToUpdate: Partial<User> = this.updateUserDtoConverter.convertInbound(user);
-        const userUpdated: User = await this.service.updateUser(params.id, userToUpdate);
+        const userUpdated: User = await this.service.updateUser(id, userToUpdate);
         return this.userDtoConverter.convertOutbound(userUpdated);
     }
 
@@ -96,7 +96,7 @@ export class UsersController {
     @ApiResponse({ status: 201, description: 'User deleted'})
     @ApiResponse({ status: 401, description: 'User not authentificated'})
     @ApiResponse({ status: 404, description: 'User not found'})
-    async deleteUser(@Param() params: {id: number}): Promise<void> {
-        return await this.service.deleteUser(params.id);
+    async deleteUser(@Param('id') id: number): Promise<void> {
+        return await this.service.deleteUser(id);
     }
 }
