@@ -1,29 +1,102 @@
-import { Controller, Post, Body, Get, Put, Delete,Param} from '@nestjs/common';
-import { UsersService } from './users.service';
+import { Body, Controller, Delete, Get, Param, Post, Put, Request, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+import { ApiImplicitBody, ApiImplicitParam, ApiResponse, ApiUseTags } from '@nestjs/swagger';
+import { UserDtoConverter } from './converter/userDto.converter';
+import { UserDto } from './model/user.dto';
 import { User } from './user.entity';
+import { UsersService } from './users.service';
+import { CreateUserDtoConverter } from './converter/createUserDto.converter';
+import { CreateUserDto } from './model/createUser.dto';
+import { UpdateUserDtoConverter } from './converter/updateUserDto.converter';
+import { UpdateUserDto } from './model/updateUser.Dto';
 
+@ApiUseTags('users')
 @Controller('users')
 export class UsersController {
 
-    constructor(private service: UsersService) { }
+    constructor(
+        private readonly service: UsersService, 
+        private readonly userDtoConverter: UserDtoConverter,
+        private readonly createUserDtoConverter: CreateUserDtoConverter,
+        private readonly updateUserDtoConverter: UpdateUserDtoConverter
+    ) { }
+    
+    @UseGuards(AuthGuard('auth'))
+    @Get('')
+    @ApiResponse({ status: 201, description: 'All users', type: UserDto, isArray: true})
+    @ApiResponse({ status: 401, description: 'User not authentificated'})
+    async getAll(): Promise<UserDto[]> {
+        const users: User[] = await this.service.getUsers();
+        return this.userDtoConverter.convertOutboundCollection(users);
+    }
 
+    @UseGuards(AuthGuard('auth'))
+    @Get('me')
+    @ApiResponse({ status: 201, description: 'User found', type: UserDto})
+    @ApiResponse({ status: 401, description: 'User not authentificated'})
+    async getProfile(@Request() req: any): Promise<UserDto> {
+        return this.userDtoConverter.convertOutbound(req.user);
+    }
+
+    @UseGuards(AuthGuard('auth'))
+    @Get('patients')
+    @ApiResponse({ status: 201, description: 'Patients found', type: UserDto, isArray: true})
+    @ApiResponse({ status: 401, description: 'User not authentificated'})
+    async getPatients(): Promise<UserDto[]> {
+        const patients: User[] = await this.service.getPatients();
+        return this.userDtoConverter.convertOutboundCollection(patients);
+    }
+
+    @UseGuards(AuthGuard('auth'))
+    @Get('doctors')
+    @ApiResponse({ status: 201, description: 'Doctors found', type: UserDto, isArray: true})
+    @ApiResponse({ status: 401, description: 'User not authentificated'})
+    async getDoctors(): Promise<UserDto[]> {
+        const doctors: User[] = await this.service.getDoctors();
+        return this.userDtoConverter.convertOutboundCollection(doctors);
+    }
+
+    @UseGuards(AuthGuard('auth'))
     @Get(':id')
-    get(@Param() params) {
-        return this.service.getUser(params.id);
+    @ApiImplicitParam({name: 'id', description: 'User id to retrieve', required: true, type: Number})
+    @ApiResponse({ status: 201, description: 'User found', type: UserDto})
+    @ApiResponse({ status: 401, description: 'User not authentificated'})
+    @ApiResponse({ status: 404, description: 'User not found'})
+    async get(@Param() id: number): Promise<UserDto> {
+        const user: User = await this.service.getUserById(id);
+        return this.userDtoConverter.convertOutbound(user);
     }
 
     @Put()
-    create(@Body() user: Partial<User>) {
-        return this.service.createUser(user);
+    @ApiImplicitBody({name: 'CreateUserDto', description: 'User to create', type: CreateUserDto})
+    @ApiResponse({ status: 201, description: 'User found', type: UserDto})
+    @ApiResponse({ status: 401, description: 'User not authentificated'})
+    async create(@Body() user: CreateUserDto): Promise<UserDto> {
+        const userToCreate: Partial<User> = this.createUserDtoConverter.convertInbound(user);
+        const createdUser: User = await this.service.createUser(userToCreate);
+        return this.userDtoConverter.convertOutbound(createdUser);
     }
 
-    @Post()
-    update(@Body() user: User) {
-        return this.service.updateUser(user);
+    @UseGuards(AuthGuard('auth'))
+    @Post(':id')
+    @ApiImplicitParam({name: 'id', description: 'User id to update', required: true, type: Number})
+    @ApiImplicitBody({name: 'UpdateUserDto', description: 'User information to update', type: UpdateUserDto})
+    @ApiResponse({ status: 201, description: 'User updated', type: UserDto})
+    @ApiResponse({ status: 401, description: 'User not authentificated'})
+    @ApiResponse({ status: 404, description: 'User not found'})
+    async update(@Param() id: number, @Body() user: UpdateUserDto): Promise<UserDto> {
+        const userToUpdate: Partial<User> = this.updateUserDtoConverter.convertInbound(user);
+        const userUpdated: User = await this.service.updateUser(id, userToUpdate);
+        return this.userDtoConverter.convertOutbound(userUpdated);
     }
 
+    @UseGuards(AuthGuard('auth'))
     @Delete(':id')
-    deleteUser(@Param() params) {
-        return this.service.deleteUser(params.id);
+    @ApiImplicitParam({name: 'id', description: 'User id to delete', required: true, type: Number})
+    @ApiResponse({ status: 201, description: 'User deleted'})
+    @ApiResponse({ status: 401, description: 'User not authentificated'})
+    @ApiResponse({ status: 404, description: 'User not found'})
+    async deleteUser(@Param() id: number): Promise<void> {
+        return await this.service.deleteUser(id);
     }
 }

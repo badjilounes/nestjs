@@ -39,12 +39,6 @@ async function bootstrap() {
   },
   });
 
-  const options = {
-    swaggerOptions: {
-      url: 'http://localhost:3000/swagger.json'
-    }
-  }
-
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(document));
 
   await app.listen(3000);
