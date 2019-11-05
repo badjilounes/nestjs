@@ -13,9 +13,9 @@ export class UsersService {
         return await this.usersRepository.find();
     }
 
-    async getUserById(_id: number): Promise<User> {
+    async getUserById(id: number): Promise<User> {
         const user: User | undefined = await this.usersRepository.findOne({
-            where: [{ "id": _id }]
+            where: [{ id }]
         });
         if (!user) {
             throw new NotFoundException('user does not exist');
@@ -64,7 +64,7 @@ export class UsersService {
         }
 
         const result: UpdateResult = await this.usersRepository.update(id, user);
-        
+
         if (result.raw.affectedRows <= 0) {
             throw new NotFoundException('user does not exist');
         }
