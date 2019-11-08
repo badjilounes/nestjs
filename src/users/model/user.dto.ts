@@ -1,5 +1,7 @@
 import { ApiModelProperty } from "@nestjs/swagger";
-import { IsNumber, IsString } from "class-validator";
+import { IsNumber, IsString, IsEmail } from "class-validator";
+import { GenderEnum } from "../../common/gender.enum";
+import { RoleEnum } from "../../common/role.enum";
 
 export class UserDto {
     @ApiModelProperty()
@@ -7,7 +9,7 @@ export class UserDto {
     id: number;
 
     @ApiModelProperty()
-    @IsString()
+    @IsEmail()
     email: string;
 
     @ApiModelProperty()
@@ -22,17 +24,17 @@ export class UserDto {
     @IsString()
     address: string;
 
-    @ApiModelProperty()
+    @ApiModelProperty({enum: Object.keys(RoleEnum).filter((v) => isNaN(+v))})
     @IsString()
     role: string;
 
-    @ApiModelProperty()
+    @ApiModelProperty({enum: Object.keys(GenderEnum).filter((v) => isNaN(+v))})
     @IsString()
     gender: string;
 
-    @ApiModelProperty({type: UserDto, isArray: true})
-    patients: UserDto[];
+    @ApiModelProperty({type: Number, isArray: true})
+    patients?: number[];
 
-    @ApiModelProperty({type: UserDto, isArray: true})
-    doctors: UserDto[];
+    @ApiModelProperty({type: Number, isArray: true})
+    doctors?: number[];
 }

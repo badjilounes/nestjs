@@ -1,6 +1,7 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
-import { IsNumber, IsString } from 'class-validator';
-
+import { IsNumber, IsString, IsOptional } from 'class-validator';
+import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, ManyToMany, JoinTable, JoinColumn } from 'typeorm';
+import { GenderEnum } from '../common/gender.enum';
+import { RoleEnum } from '../common/role.enum';
 @Entity()
 export class User {
 
@@ -28,17 +29,16 @@ export class User {
     @IsString()
     address = '';
 
-    @Column({ type: String })
-    @IsString()
-    role = 'patient';
+    @Column({ type: Number })
+    @IsNumber()
+    role = RoleEnum.Patient;
 
-    @Column({ type: String })
-    @IsString()
-    gender = 'male';
+    @Column({ type: Number })
+    @IsNumber()
+    gender = GenderEnum.Male;
 
-    @OneToMany(type => User, user => user.doctors)
-    doctors: User[];
-
-    @OneToMany(type => User, user => user.patients)
-    patients: User[];
+    @ManyToMany(type => User, {cascade: ['remove', 'insert', 'update'], nullable: true})
+    @JoinTable({name: 'doctorIds', joinColumn: {name: 'id'}})
+    @Column({type: 'json', nullable: true})
+    doctors?: User[];
 }

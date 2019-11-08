@@ -4,6 +4,7 @@ import { AppModule } from './app.module';
 import * as express from 'express';
 import * as http from 'http';
 import * as swaggerUi from 'swagger-ui-express';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
 
@@ -41,6 +42,7 @@ async function bootstrap() {
 
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(document));
 
+  app.useGlobalPipes(new ValidationPipe());
   await app.listen(3000);
 
   if (process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'test') {

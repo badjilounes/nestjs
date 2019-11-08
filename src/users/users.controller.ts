@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Request, UseGuards, ParseIntPipe } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiImplicitBody, ApiImplicitParam, ApiResponse, ApiUseTags } from '@nestjs/swagger';
 import { UserDtoConverter } from './converter/userDto.converter';
@@ -62,7 +62,7 @@ export class UsersController {
     @ApiResponse({ status: 201, description: 'User found', type: UserDto})
     @ApiResponse({ status: 401, description: 'User not authentificated'})
     @ApiResponse({ status: 404, description: 'User not found'})
-    async get(@Param('id') id: number): Promise<UserDto> {
+    async get(@Param('id', new ParseIntPipe()) id: number): Promise<UserDto> {
         const user: User = await this.service.getUserById(id);
         return this.userDtoConverter.convertOutbound(user);
     }
@@ -73,6 +73,7 @@ export class UsersController {
     @ApiResponse({ status: 401, description: 'User not authentificated'})
     async create(@Body() user: CreateUserDto): Promise<UserDto> {
         const userToCreate: Partial<User> = this.createUserDtoConverter.convertInbound(user);
+        console.log(userToCreate);
         const createdUser: User = await this.service.createUser(userToCreate);
         return this.userDtoConverter.convertOutbound(createdUser);
     }
@@ -84,7 +85,7 @@ export class UsersController {
     @ApiResponse({ status: 201, description: 'User updated', type: UserDto})
     @ApiResponse({ status: 401, description: 'User not authentificated'})
     @ApiResponse({ status: 404, description: 'User not found'})
-    async update(@Param('id') id: number, @Body() user: UpdateUserDto): Promise<UserDto> {
+    async update(@Param('id', new ParseIntPipe()) id: number, @Body() user: UpdateUserDto): Promise<UserDto> {
         const userToUpdate: Partial<User> = this.updateUserDtoConverter.convertInbound(user);
         const userUpdated: User = await this.service.updateUser(id, userToUpdate);
         return this.userDtoConverter.convertOutbound(userUpdated);
@@ -96,7 +97,7 @@ export class UsersController {
     @ApiResponse({ status: 201, description: 'User deleted'})
     @ApiResponse({ status: 401, description: 'User not authentificated'})
     @ApiResponse({ status: 404, description: 'User not found'})
-    async deleteUser(@Param('id') id: number): Promise<void> {
+    async deleteUser(@Param('id', new ParseIntPipe()) id: number): Promise<void> {
         return await this.service.deleteUser(id);
     }
 }
