@@ -23,7 +23,7 @@ export class UsersService {
         });
         
         if (!user) {
-            throw new NotFoundException('user does not exist');
+            throw new NotFoundException("Cet utilisateur n'existe pas");
         }
         return user;
     }
@@ -43,7 +43,7 @@ export class UsersService {
         user.password = await bcrypt.hash(user.password, 10);
         const emailExists = await this.emailExists(user.email);
         if (emailExists) {
-            throw new ForbiddenException('email already exists');
+            throw new ForbiddenException("Cet email est déjà utilisé.");
         }
 
         const userCreated: User = this.usersRepository.create(user);
@@ -53,12 +53,12 @@ export class UsersService {
     async checkUserCredentials(email: string, password: string): Promise<User | undefined> {
         const user: User = await this.getUserByMail(email);
         if (!user) {
-            throw new UnauthorizedException('email does not exist');
+            throw new UnauthorizedException("Cet utilisateur n'existe pas.");
         }
         
         const passwordMatch: boolean = await bcrypt.compare(password, user.password)
         if (!passwordMatch) {
-            throw new UnauthorizedException('invalid password');
+            throw new UnauthorizedException("Mot de passe incorrect.");
         }
         return user;
     }
@@ -71,7 +71,7 @@ export class UsersService {
         const result: UpdateResult = await this.usersRepository.update(id, user);
 
         if (result.raw.affectedRows <= 0) {
-            throw new NotFoundException('user does not exist');
+            throw new NotFoundException("Cet utilisateur n'existe pas.");
         }
         return await this.getUserById(id);
     }
@@ -79,7 +79,7 @@ export class UsersService {
     async deleteUser(id: number): Promise<void> {
         const user: User | undefined = await this.getUserById(id);
         if (!user) {
-            throw new NotFoundException('user does not exist');
+            throw new NotFoundException("Cet utilisateur n'existe pas.");
         }
         await this.usersRepository.delete(user.id);
     }
@@ -100,7 +100,7 @@ export class UsersService {
         const patient: User = await this.getUserById(userId);
         const isUserPatient: boolean = patient.role === RoleEnum.Patient;
         if (!isUserPatient) {
-            throw new ForbiddenException('user id does not match patient user.');
+            throw new ForbiddenException("Cet utilisateur n'a pas le rôle patient.");
         }
         return patient;
     }
@@ -109,14 +109,14 @@ export class UsersService {
         const doctor: User = await this.getUserById(userId);
         const isUserDoctor: boolean = doctor.role === RoleEnum.Doctor;
         if (!isUserDoctor) {
-            throw new ForbiddenException('user id does not match doctor user.');
+            throw new ForbiddenException("Cet utilisateur n'a pas le rôle médecin.");
         }
         return doctor;
     }
 
     private userTokenIdMatchPatientId(userTokenId: number, patientId: number): void {
         if (userTokenId !== patientId) {
-            throw new UnauthorizedException('user token id does not match patient id');
+            throw new UnauthorizedException("Le token de cet utilisateur ne correspond pas à un patient.");
         }
     }
 
@@ -125,7 +125,7 @@ export class UsersService {
         const patient: User = await this.getPatientFromId(patientId);
         const doctor: User = await this.getDoctorFromId(doctorId);
         if (patient.doctors.find(d => d.id === doctor.id)) {
-            throw new ForbiddenException('doctor already attached to this patient.');
+            throw new ForbiddenException("Ce médecin est déjà attaché à ce patient.");
         }
 
         patient.doctors = patient.doctors.concat(doctor);
@@ -138,7 +138,7 @@ export class UsersService {
         const doctor: User = await this.getDoctorFromId(doctorId);
 
         if (!patient.doctors.find(d => d.id === doctor.id)) {
-            throw new ForbiddenException('doctor not attached to this patient.');
+            throw new ForbiddenException("Ce médecin n'est pas attaché à ce patient.");
         }
 
         patient.doctors = patient.doctors.filter(d => d.id !== doctor.id);

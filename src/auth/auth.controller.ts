@@ -57,7 +57,8 @@ export class AuthController {
      * @returns {UserDto} objet qui contient les informations de l'utilisateur qui a été créé 
      */
     @Put('signup')
-    @ApiImplicitBody({name: 'UserDto', description: 'User to create', type: UserDto})
+    @ApiImplicitBody({name: 'CreateUserDto', description: 'User to create', type: CreateUserDto})
+    @ApiResponse({status: 201, description: 'User created', type: UserDto})
     async signup(@Body() user: CreateUserDto): Promise<UserDto> {
         //On convertie l'utilisateur de type CreateUserDto en Partial<User>
         const userToCreate: Partial<User> = this.createUserDtoConverter.convertInbound(user)
