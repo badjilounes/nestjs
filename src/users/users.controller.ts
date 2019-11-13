@@ -73,7 +73,6 @@ export class UsersController {
     @ApiResponse({ status: 401, description: 'User not authentificated'})
     async create(@Body() user: CreateUserDto): Promise<UserDto> {
         const userToCreate: Partial<User> = this.createUserDtoConverter.convertInbound(user);
-        console.log(userToCreate);
         const createdUser: User = await this.service.createUser(userToCreate);
         return this.userDtoConverter.convertOutbound(createdUser);
     }

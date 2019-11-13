@@ -8,8 +8,6 @@ export class UserDtoConverter implements Converter<UserDto, User>{
     constructor() {}
 
     convertOutbound(user: User): UserDto {
-        console.log('user dto converter: ', user);
-
         let userDto: UserDto = {
             id: user.id,
             address: user.address,

@@ -1,11 +1,12 @@
 import { Controller, Delete, Param, Post, UseGuards, Request, ParseIntPipe } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiImplicitParam, ApiResponse } from '@nestjs/swagger';
+import { ApiImplicitParam, ApiResponse, ApiUseTags } from '@nestjs/swagger';
 import { UserDtoConverter } from '../users/converter/userDto.converter';
 import { UserDto } from '../users/model/user.dto';
 import { User } from '../users/user.entity';
 import { UsersService } from '../users/users.service';
 
+@ApiUseTags('patient')
 @Controller('patient')
 export class PatientController {
     constructor(

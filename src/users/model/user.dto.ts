@@ -32,9 +32,6 @@ export class UserDto {
     @IsString()
     gender: string;
 
-    @ApiModelProperty({type: Number, isArray: true})
-    patients?: number[];
-
-    @ApiModelProperty({type: Number, isArray: true})
+    @ApiModelProperty({type: Number, isArray: true, required: false})
     doctors?: number[];
 }
