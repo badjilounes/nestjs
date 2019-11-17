@@ -5,18 +5,17 @@ import * as express from 'express';
 import * as http from 'http';
 import * as swaggerUi from 'swagger-ui-express';
 import { ValidationPipe } from '@nestjs/common';
+import { configService } from './config/config.module';
 
 async function bootstrap() {
 
   const app = await NestFactory.create(AppModule);
 
   //Autorise les requêtes cross domaine (de localhost:4200 à localhost:3000)
-  app.enableCors({
-    origin: ['http://localhost:4200'],
-  });
+  app.enableCors({ origin: [`${configService.webProtocol}://${configService.webHostName}`] });
 
   //Définit un préfixe pour toutes les routes (/api)
-  app.setGlobalPrefix('api');
+  app.setGlobalPrefix(configService.apiBasePath);
 
 
   //Initialise et configure le swagger
@@ -25,10 +24,10 @@ async function bootstrap() {
     .setDescription('API for gsb')
     .setExternalDoc('Swagger document as JSON', '../swagger-json')
     .setVersion('1.0')
-    .setSchemes('http')
+    .setSchemes(configService.swaggerProtocol)
     .addBearerAuth()
-    .setHost('localhost:3000')
-    .setBasePath('api')
+    .setHost(configService.swaggerHostName)
+    .setBasePath(configService.apiBasePath)
     .build();
 
   const document = SwaggerModule.createDocument(app, swaggerOptions);
@@ -57,7 +56,7 @@ async function bootstrap() {
   /**
    * Lance le serveur sur le port spécifié en paramètre (ici 3000)
    */
-  await app.listen(3000);
+  await app.listen(process.env.PORT || 3000);
 
   /**
    * Crée un serveur sur le port 1336 qui permet de distribué le fichier swagger.json.
@@ -67,8 +66,10 @@ async function bootstrap() {
    * En utilisant ng-swagger-gen côté front, on peut automatiser la création des classes attendues et de celles retournées par le serveur.
    * (PI: il permet même de créer les services qui correspondent au controller déifnit côté serveur)
    */
-  const server = express();
-  server.get('/api/swagger.json', (req, res) => res.json(document));
-  http.createServer(server).listen(1336);
+  if (!configService.isProd) {
+    const server = express();
+    server.get('/api/swagger.json', (req, res) => res.json(document));
+    http.createServer(server).listen(1336);
+  }
 }
 bootstrap();
