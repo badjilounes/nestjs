@@ -22,7 +22,7 @@ yarn cache clean
 
 yarn prestart:prod
 
-rsync -d -r dist/ ../Prescriber/
+rsync -d -r ./ ../Prescriber/
 
 cd ../Prescriber
 git add *
