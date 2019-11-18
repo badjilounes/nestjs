@@ -66,10 +66,8 @@ async function bootstrap() {
    * En utilisant ng-swagger-gen côté front, on peut automatiser la création des classes attendues et de celles retournées par le serveur.
    * (PI: il permet même de créer les services qui correspondent au controller déifnit côté serveur)
    */
-  if (!configService.isProd) {
-    const server = express();
-    server.get('/api/swagger.json', (req, res) => res.json(document));
-    http.createServer(server).listen(1336);
-  }
+  const server = express();
+  server.get('/api/swagger.json', (req, res) => res.json(document));
+  http.createServer(server).listen(1336);
 }
 bootstrap();
